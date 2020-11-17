@@ -4,18 +4,18 @@
 Using Active Directoy to Kerberize a Linux NFS v3 server and Client
 
 
-####Summary
+#### Summary
 
 There are a lot of misconceptions about NFS and kerberos. The main point to note is that RPCSEC_GSS is available (and
 therefore Kerberos support) in both NFSv3 and v4. This document explains how to use Microsoft AD as a Kerberos Realm for Linux NFS client/server.
 
-####Requirements
+#### Requirements
 
  * 1 Centos 7 NFS server
  * 1 Centos 7 NFS Client
  * 1 Windows 2012 DC
  
-####Kerberos in short
+#### Kerberos in short
 
 It is a third party that client and servers use for service authentication (not authorization). No password along the wire, so very secure.
 
@@ -23,20 +23,20 @@ The KDC has a database of Principals with passwords -  User (users) and Service 
 
 The UIDs/GIDs/users that are common to the client and server can be derived from either the same AD as the KDC, NIS,LDAP or just a local password file. The client and server need to know about the same users and use Kerberos to authenticate the User Principal to a service. If successful the KDC autheticated User Principal is mapped to the local user on the client/server. This local user can then perform actions within its authorization remit, like write files to a certain directory.
  
-####Identity mapping
+#### Identity mapping
 
 Not to be confused with the KDC. I chose to simply create local users on the NFS Client and Server with the same UIDs.
 You can automate this with SSSD on Linux getting identity from the AD. [Here is a good article on AD and NFS identity](http://blogs.technet.com/b/filecab/archive/2012/10/09/nfs-identity-mapping-in-windows-server-2012.aspx)
 
-####Service Principals
+#### Service Principals
 
 I created a computer object in AD for the client and server manually (to save configuring Samba and using net ads join). I also created a user object (testuser).
 
-####Time
+#### Time
 
 The NFS server and client need to have the same time in sync with the Windows DC. This is critical for Kerberos to function properly.
 
-####Kerberos Client Install
+#### Kerberos Client Install
 
 Install these packages on client and server
 
@@ -54,7 +54,7 @@ if rpc.gssd is not running start it thus
 
 <code>rpc.gssd start</code>
 
-####Kerberos Client Config
+#### Kerberos Client Config
 
 For Kerberos to work with NFS both the client and server need a valid kerberos config file <code>krb5.conf</code>
 
@@ -87,9 +87,9 @@ FILE=/var/krb5/kdc.log
 
 </pre>
 
-####Keytab Files
+#### Keytab Files
 
-#####Keytabs for Services
+##### Keytabs for Services
 
 
 Keytab files automate authentication to a Kerberized service. They contains service principal and user principal keys encryped by kerberos passwords in the AD KDC. 
@@ -125,7 +125,7 @@ ktpass -princ nfs/nfs-server.cemsad.local@CEMSAD.LOCAL -mapuser nfs-server-nfs -
 Copy keytab files to <code>/etc</code>  on your NFS client/server
 
 
-#####Keytabs for users
+##### Keytabs for users
 
 If we want to put files on the NFS export as a particular user in AD we will have to get a kerberos ticket for that specific user to authenticate.
 
@@ -157,7 +157,7 @@ Valid starting     Expires            Service principal
  
 </pre>
 
-###NFS Server
+### NFS Server
 Just a note that I set up a standard NFSv3 server.
 I created the export dir with full permissions and a sticky bit to honour file ownership in the root dir
 
@@ -172,7 +172,7 @@ The exports file looks like this -
 
 
 
-###Tickets
+### Tickets
 
 So finally we can try mounting and using the export as a user in AD - 
 
